@@ -28,7 +28,7 @@ def answer_question(query):
     # Step 3: Build context
     context = build_context(
         reranked_results,
-        max_chunks=3,
+        max_chunks=4,
     )
 
     # Step 4: Build prompt

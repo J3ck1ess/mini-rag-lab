@@ -28,6 +28,8 @@ The code is intentionally split into focused modules so that each stage can be s
 - Context and prompt builders that instruct the model to answer only from the retrieved context.
 - Local answer generation through Ollama's HTTP API.
 - Retrieval and reranking evaluation scripts with Recall, Precision, and MRR metrics.
+- End-to-end RAG pipeline evaluation with answer checks for answerable, multi-condition, unanswerable, and robustness cases.
+- JSON evaluation reports with per-case results, missing expected points, and aggregate pass rate.
 
 ## Architecture
 
@@ -62,12 +64,14 @@ mini-rag-lab/
 │   ├── llm_client_demo.py
 │   └── rag_pipeline_demo.py
 ├── experiments/                # Alternative chunking experiments
+├── evaluation_reports/         # Generated evaluation reports (gitignored)
 ├── mini_rag.py                 # Knowledge base, embeddings, and retrieval
 ├── reranker.py                 # Reusable cross-encoder reranking function
 ├── context_builder.py          # Converts ranked chunks into LLM context
 ├── prompt_builder.py           # Creates the grounded answer prompt
 ├── llm_client.py               # Ollama HTTP client and model configuration
 ├── rag_pipeline.py             # End-to-end question-answering pipeline
+├── pipeline_evaluation.py     # End-to-end RAG answer evaluation
 ├── evaluation.py               # Retrieval metrics: Recall@K and Precision@K
 ├── reranker_evaluation.py      # Baseline-versus-reranked metrics
 ├── .gitignore
@@ -182,6 +186,18 @@ python reranker_evaluation.py
 ```
 
 This reports macro-average `Recall@1`, `MRR@3`, `Recall@3`, and `Recall@5`. The current evaluation set is small and based on the in-memory employee-policy document, so results are useful for learning and regression checks rather than as a production benchmark.
+
+### End-to-End Pipeline Evaluation
+
+Run the 15-case evaluation of retrieval, reranking, context construction, and answer generation:
+
+```bash
+python pipeline_evaluation.py
+```
+
+The cases cover four categories: `answerable`, `multi_condition`, `unanswerable`, and `robustness`. The script prints each result and writes a JSON report to `evaluation_reports/pipeline_evaluation.json`.
+
+The evaluator uses basic keyword matching for expected answer points and an exact refusal-phrase check. A 100% pass rate on these 15 cases is a useful learning check, not a claim of production reliability.
 
 ## Limitations
 
